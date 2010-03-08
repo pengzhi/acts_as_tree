@@ -90,38 +90,6 @@ module ActiveRecord
         def self_and_siblings
           parent ? parent.children : self.class.roots
         end
-        
-        # Returns all siblings with the parent node in a nested array in the following format:
-        # [ [ subchild2, [subchild3, subchild4 ] ], subchild5, subchild6 ]
-        #    parent -->    child,       child
-        #                  parent -->   child
-        #                                             child,     child
-        #
-        #   subchild1.all_children # => [[subchild2, [subchild3, subchild4]], subchild5, subchild6]
-        # 
-        # Because all_children loops through every single child, you can now 
-        # work on each child much like array.map by passing a block:
-        #
-        #   subchild1.all_children do |child|
-        #     child.name
-        #   end # => [['Alex', ['Amy', 'Dan']], 'Joe', 'John']
-        def all_children
-
-          yielded_self = if block_given?
-            yield self
-          end
-
-          return ( yielded_self || self ) if self.children.empty?
-          _child = self.children.map do |child|
-            _name = (yield child if block_given?) || self
-            if child.children.empty?
-              _name
-            else
-              [_name, child.all_children{ |this_child| yield this_child if block_given? }]
-            end
-          end
-          return _child
-        end
       end
     end
   end
